@@ -6,5 +6,13 @@ body {
   }
 
   h1 {
+      font-family: Arial, sans-serif;
+  font-size: 24px;
     color: #2c100e;
   }
+ h2 {
+      font-family: Arial, sans-serif;
+  font-size: 16px;
+    color: #2c100e;
+  }
+
