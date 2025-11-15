@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>A carnivore did it ! - Publication réseaux</title>
+
   <style>
     body {
       font-family: system-ui, sans-serif;
@@ -34,7 +35,7 @@
       text-align: center;
     }
     button {
-      margin-top: 1rem;
+      margin-top: 0.5rem;
       padding: 0.6rem 1.2rem;
       font-size: 1rem;
       border: none;
@@ -55,43 +56,37 @@
       display: none;
       white-space: pre-line;
     }
-  
     #chrono {
       font-size: 1.6rem;
       margin-bottom: 0.5rem;
       font-weight: bold;
     }
-
   </style>
-
-
-
-
-
-  
 </head>
 <body>
   <div class="container">
-    <h2>A carnivore did it ! </h2>
-     <h3>Tu as réussi une enigme du jeu et tu veux le partager sur les réseaux. Remplis le numéro du feuillet et la ligne de l'énigme  ci dessous </h3>
+    <h2>A carnivore did it !</h2>
+    <h3>Tu as résolu une énigme ? Renseigne le feuillet et la ligne ci-dessous 👇</h3>
+
+    <!-- Champs page + ligne -->
     <div>
-      <input type="number" id="page" placeholder="Feuillet de niveau (1-20)">
+      <input type="number" id="page" placeholder="Feuillet (1-20)">
       <input type="number" id="ligne" placeholder="Ligne (1-100)">
     </div>
-<!-- Chronomètre -->
+
+    <!-- Chronomètre -->
     <div style="margin-top:1rem;">
       <div id="chrono">00:00</div>
       <button onclick="startChrono()">Démarrer</button>
       <button onclick="stopChrono()">Arrêter</button>
+      <button onclick="resetChrono()">Remise à zéro</button>
     </div>
-    
 
-
-
-
-    
+    <!-- Génération + copie -->
     <button onclick="genererTexte()">Générer</button>
     <button id="copyBtn" onclick="copierTexte()" style="display:none;">Copier</button>
+
+    <!-- Résultat -->
     <div id="result"></div>
   </div>
 
@@ -119,12 +114,21 @@
       chronoInterval = null;
     }
 
-// Format du temps
-      const minutes = String(Math.floor(timeInSeconds / 60)).padStart(2, '0');
-      const seconds = String(timeInSeconds % 60).padStart(2, '0');
-      const temps = `${minutes}:${seconds}`;
+    function resetChrono() {
+      clearInterval(chronoInterval);
+      chronoInterval = null;
+      timeInSeconds = 0;
+      updateChronoDisplay();
 
-    
+      // Efface le texte généré
+      document.getElementById('result').style.display = 'none';
+      document.getElementById('result').textContent = "";
+
+      // Cache le bouton Copier
+      document.getElementById('copyBtn').style.display = 'none';
+    }
+
+    // GÉNÉRATION DU TEXTE
     function genererTexte() {
       const page = document.getElementById('page').value.trim();
       const ligne = document.getElementById('ligne').value.trim();
@@ -133,17 +137,30 @@
 
       if (!page || !ligne) {
         result.style.display = 'block';
-        result.textContent = "Merci de renseigner la page et la ligne.";
+        result.textContent = "Merci de renseigner le feuillet et la ligne.";
         copyBtn.style.display = 'none';
         return;
       }
 
-      const texte = `A carnivore did it #j2s J’ai réussi l’énquête niveau ${page}, numéro ${ligne} en ${temps} !  \n Et toi, tu y es arrivé ? \n  \n #acarnivoredidit #acdi #horribleguild #j2s`;
+      // Calcul du temps au moment de la génération
+      const minutes = String(Math.floor(timeInSeconds / 60)).padStart(2, '0');
+      const seconds = String(timeInSeconds % 60).padStart(2, '0');
+      const temps = `${minutes}:${seconds}`;
+
+      // Texte final
+      const texte = 
+`A carnivore did it #j2s
+J’ai réussi l’enquête niveau ${page}, numéro ${ligne} en ${temps} !
+Et toi, tu y es arrivé ?
+
+#acarnivoredidit #acdi #horribleguild #j2s`;
+
       result.textContent = texte;
       result.style.display = 'block';
       copyBtn.style.display = 'inline-block';
     }
 
+    // COPIE
     function copierTexte() {
       const texte = document.getElementById('result').textContent;
       navigator.clipboard.writeText(texte).then(() => {
