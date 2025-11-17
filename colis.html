@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Suivi de Commandes</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    h1 { font-size: 1.4rem; }
+    .form { margin-bottom: 20px; }
+    input, select { padding: 6px; margin-right: 10px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 8px; border: 1px solid #ccc; text-align: left; }
+    button { padding: 6px 12px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h1>Suivi de mes commandes</h1>
+
+  <div class="form">
+    <input type="text" id="site" placeholder="Nom du site" />
+    <input type="text" id="desc" placeholder="Description commande" />
+    <select id="statut">
+      <option value="Envoyé">Envoyé</option>
+      <option value="Disponible en relais">Disponible en relais</option>
+      <option value="Récupéré">Récupéré</option>
+      <option value="Renvoyé">Renvoyé</option>
+      <option value="Remboursé">Remboursé</option>
+    </select>
+    <button onclick="ajouterCommande()">Ajouter</button>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Site</th>
+        <th>Description</th>
+        <th>Statut</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="tableau"></tbody>
+  </table>
+
+  <script>
+    const STATUTS = [
+      "Envoyé",
+      "Disponible en relais",
+      "Récupéré",
+      "Renvoyé",
+      "Remboursé"
+    ];
+
+    function charger() {
+      return JSON.parse(localStorage.getItem("commandes") || "[]");
+    }
+
+    function sauvegarder(data) {
+      localStorage.setItem("commandes", JSON.stringify(data));
+    }
+
+    function ajouterCommande() {
+      const site = document.getElementById("site").value;
+      const desc = document.getElementById("desc").value;
+      const statut = document.getElementById("statut").value;
+
+      if (!site || !desc) return;
+
+      const commandes = charger();
+      commandes.push({ site, desc, statut });
+      sauvegarder(commandes);
+      afficher();
+    }
+
+    function changerStatut(index) {
+      const commandes = charger();
+      const current = STATUTS.indexOf(commandes[index].statut);
+      const next = (current + 1) % STATUTS.length;
+      commandes[index].statut = STATUTS[next];
+      sauvegarder(commandes);
+      afficher();
+    }
+
+    function supprimer(index) {
+      const commandes = charger();
+      commandes.splice(index, 1);
+      sauvegarder(commandes);
+      afficher();
+    }
+
+    function afficher() {
+      const commandes = charger();
+      const tbody = document.getElementById("tableau");
+      tbody.innerHTML = "";
+
+      commandes.forEach((cmd, i) => {
+        tbody.innerHTML += `
+          <tr>
+            <td>${cmd.site}</td>
+            <td>${cmd.desc}</td>
+            <td><button onclick="changerStatut(${i})">${cmd.statut}</button></td>
+            <td><button onclick="supprimer(${i})">Supprimer</button></td>
+          </tr>`;
+      });
+    }
+
+    afficher();
+  </script>
+</body>
+</html>
