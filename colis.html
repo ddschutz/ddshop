@@ -20,7 +20,9 @@
   <div class="form">
     <input type="text" id="site" placeholder="Nom du site" />
     <input type="text" id="desc" placeholder="Description commande" />
+    <input type="date" id="livraison" />
     <select id="statut">
+      <option value="Validé">Validé</option>
       <option value="Envoyé">Envoyé</option>
       <option value="Disponible en relais">Disponible en relais</option>
       <option value="Récupéré">Récupéré</option>
@@ -28,6 +30,7 @@
       <option value="Remboursé">Remboursé</option>
     </select>
     <button onclick="ajouterCommande()">Ajouter</button>
+  </div>()">Ajouter</button>
   </div>
 
   <table>
@@ -35,6 +38,7 @@
       <tr>
         <th>Site</th>
         <th>Description</th>
+        <th>Date de livraison</th>
         <th>Statut</th>
         <th>Actions</th>
       </tr>
@@ -44,6 +48,7 @@
 
   <script>
     const STATUTS = [
+      "Validé",
       "Envoyé",
       "Disponible en relais",
       "Récupéré",
@@ -62,21 +67,31 @@
     function ajouterCommande() {
       const site = document.getElementById("site").value;
       const desc = document.getElementById("desc").value;
+      const livraison = document.getElementById("livraison").value;
       const statut = document.getElementById("statut").value;
 
       if (!site || !desc) return;
 
       const commandes = charger();
-      commandes.push({ site, desc, statut });
+      commandes.push({ site, desc, livraison, statut });
       sauvegarder(commandes);
       afficher();
     }
 
-    function changerStatut(index) {
+    function incrementerStatut(index) {
       const commandes = charger();
       const current = STATUTS.indexOf(commandes[index].statut);
       const next = (current + 1) % STATUTS.length;
       commandes[index].statut = STATUTS[next];
+      sauvegarder(commandes);
+      afficher();
+    }
+
+    function decrementerStatut(index) {
+      const commandes = charger();
+      const current = STATUTS.indexOf(commandes[index].statut);
+      const prev = (current - 1 + STATUTS.length) % STATUTS.length;
+      commandes[index].statut = STATUTS[prev];
       sauvegarder(commandes);
       afficher();
     }
@@ -86,6 +101,12 @@
       commandes.splice(index, 1);
       sauvegarder(commandes);
       afficher();
+    }
+
+    function modifierLivraison(index, value) {
+      const commandes = charger();
+      commandes[index].livraison = value;
+      sauvegarder(commandes);
     }
 
     function afficher() {
@@ -98,7 +119,12 @@
           <tr>
             <td>${cmd.site}</td>
             <td>${cmd.desc}</td>
-            <td><button onclick="changerStatut(${i})">${cmd.statut}</button></td>
+            <td><input type='date' value='${cmd.livraison || ""}' onchange='modifierLivraison(${i}, this.value)' /></td>
+            <td>
+              <button onclick="decrementerStatut(${i})">-</button>
+              ${cmd.statut}
+              <button onclick="incrementerStatut(${i})">+</button>
+            </td>
             <td><button onclick="supprimer(${i})">Supprimer</button></td>
           </tr>`;
       });
